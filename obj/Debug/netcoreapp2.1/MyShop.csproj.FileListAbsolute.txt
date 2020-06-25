@@ -1,0 +1,11 @@
+c:\users\user\source\repos\MyShop\MyShop\bin\Debug\netcoreapp2.1\MyShop.deps.json
+c:\users\user\source\repos\MyShop\MyShop\bin\Debug\netcoreapp2.1\MyShop.runtimeconfig.json
+c:\users\user\source\repos\MyShop\MyShop\bin\Debug\netcoreapp2.1\MyShop.runtimeconfig.dev.json
+c:\users\user\source\repos\MyShop\MyShop\bin\Debug\netcoreapp2.1\MyShop.dll
+c:\users\user\source\repos\MyShop\MyShop\obj\Debug\netcoreapp2.1\MyShop.csprojAssemblyReference.cache
+c:\users\user\source\repos\MyShop\MyShop\obj\Debug\netcoreapp2.1\MyShop.csproj.CoreCompileInputs.cache
+c:\users\user\source\repos\MyShop\MyShop\obj\Debug\netcoreapp2.1\MyShop.AssemblyInfoInputs.cache
+c:\users\user\source\repos\MyShop\MyShop\obj\Debug\netcoreapp2.1\MyShop.AssemblyInfo.cs
+c:\users\user\source\repos\MyShop\MyShop\bin\Debug\netcoreapp2.1\MyShop.pdb
+c:\users\user\source\repos\MyShop\MyShop\obj\Debug\netcoreapp2.1\MyShop.dll
+c:\users\user\source\repos\MyShop\MyShop\obj\Debug\netcoreapp2.1\MyShop.pdb
