@@ -3,6 +3,7 @@
     using Microsoft.EntityFrameworkCore;
     using MyShop.Data;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
 
     public class Program
@@ -14,10 +15,17 @@
                 //we use method wich to clean and delete; this method will receive the DB
                 PrepareDatabase(db);
                 SaveSalesmen(db);
+
+                SaveItems(db);
                 //2nd part from the task
                 ProcessCommands(db);
                 //3th part from task
-                PrintSalesmenWithCustomerCount(db);
+                //PrintSalesmenWithCustomerCount(db);
+                //PrintCustomerWithOrdersAndReviewsCount(db);
+                //PrintCustomerWithOrdersAndReviews(db);
+                //PrintCustomerData(db);
+                PrintOrdersWithMoreThanOneItem(db);
+
             }
         }
 
@@ -63,6 +71,12 @@
                     case "register":
                         RegisterCustomer(db, arguments);
                         break;
+                    case "order":
+                        SaveOrder(db, arguments);
+                        break;
+                    case "review":
+                        SaveReview(db, arguments);
+                        break;
                     default:
                         break;
                 }
@@ -95,7 +109,7 @@
                 .Salesmen
                 .Select(s => new
                 {
-                    s.Name, 
+                    s.Name,
                     Customers = s.Customers.Count
                 })
                 .OrderByDescending(s => s.Customers)
@@ -104,8 +118,158 @@
 
             foreach (var salesman in salesmenData)
             {
-                Console.WriteLine($"{salesman.Name} - {salesman.Customers} customers" );
+                Console.WriteLine($"{salesman.Name} - {salesman.Customers} customers");
             }
+        }
+
+        private static void SaveOrder(ShopDbContext db, string arguments)
+        {
+            var parts = arguments.Split(';');
+
+            var customerId = int.Parse(parts[0]);
+
+            var order = new Order { CustomerId = customerId };
+
+            //var itemIds = new HashSet<int>();
+
+            for (int i = 1; i < parts.Length; i++)
+            {
+                var itemId = int.Parse(parts[i]);
+
+                order.Items.Add(new ItemOrder
+                {
+                    ItemId = itemId,
+                });
+                //itemIds.Add(itemId);
+            }
+
+            db.Add(order);
+
+            db.SaveChanges();
+        }
+
+        private static void SaveReview(ShopDbContext db, string arguments)
+        {
+            var parts = arguments.Split(';');
+
+            var customerId = int.Parse(parts[0]);
+            //var customerId = int.Parse(arguments);
+            var itemId = int.Parse(parts[1]);
+
+            db.Add(new Review
+            {
+                CustomerId = customerId,
+                ItemId = itemId
+            });
+
+            db.SaveChanges();
+        }
+
+        private static void PrintCustomerWithOrdersAndReviewsCount(ShopDbContext db)
+        {
+            var CustomersData = db
+                .Customers
+                .Select(c => new
+                {
+                    c.Name,
+                    Orders = c.Orders.Count,
+                    Reviews = c.Reviews.Count
+                })
+                .OrderByDescending(c => c.Orders)
+                .ThenByDescending(c => c.Reviews)
+                .ToList();
+
+            foreach (var customer in CustomersData)
+            {
+                Console.WriteLine(customer.Name);
+                Console.WriteLine($"Orders: {customer.Orders}");
+                Console.WriteLine($"Reviews: {customer.Reviews}");
+            }
+        }
+
+        private static void SaveItems(ShopDbContext db)
+        {
+            while (true)
+            {
+                var line = Console.ReadLine();
+
+                if (line == "END")
+                {
+                    break;
+                }
+
+                var parts = line.Split(';');
+                var itemName = parts[0];
+                var itemPrice = decimal.Parse(parts[1]);
+
+                db.Add(new Item
+                {
+                    Name = itemName,
+                    Price = itemPrice
+                });
+            }
+            db.SaveChanges();
+        }
+
+        private static void PrintCustomerWithOrdersAndReviews(ShopDbContext db)
+        {
+            int customerId = int.Parse(Console.ReadLine());
+
+            var customerData = db
+                .Customers
+                .Where(c => c.Id == customerId)
+                .Select(c => new
+                {
+                    Orders = c.Orders.Select(o => new
+                    {
+                        o.Id,
+                        Items = o.Items.Count
+                    })
+                    .OrderBy(o => o.Id),
+                    Reviews = c.Reviews.Count
+                })
+                .FirstOrDefault();
+
+            foreach (var order in customerData.Orders)
+            {
+                Console.WriteLine($"order {order.Id}: {order.Items} items");
+            }
+
+            Console.WriteLine($"reviews: {customerData.Reviews}");
+        }
+
+        private static void PrintCustomerData(ShopDbContext db)
+        {
+            int customerId = int.Parse(Console.ReadLine());
+            var customerData = db
+                .Customers
+                .Where(c => c.Id == customerId)
+                .Select(c => new
+                {
+                    c.Name,
+                    Orders = c.Orders.Count,
+                    Reviews = c.Reviews.Count,
+                    Salesman = c.Salesman.Name
+                })
+                .FirstOrDefault();
+
+            Console.WriteLine($"Customer: {customerData.Name}");
+            Console.WriteLine($"Orders count: {customerData.Orders}");
+            Console.WriteLine($"Reviews count: {customerData.Reviews}");
+            Console.WriteLine($"Salesman: {customerData.Salesman}");
+        }
+
+        private static void PrintOrdersWithMoreThanOneItem(ShopDbContext db)
+        {
+            int customerId = int.Parse(Console.ReadLine());
+
+            var orders = db
+                .Orders
+                .Where(o => o.CustomerId == customerId)
+                .Where(o =>o.Items.Count > 1)
+                .Count();
+
+            Console.WriteLine($"Orders: {orders}");
         }
     }
 }
